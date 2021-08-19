@@ -1,0 +1,145 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+---
+
+
+```{r}
+library(readxl)
+```
+
+```{r}
+
+data = read.csv("student_scores.csv")
+print(data)
+View(data)
+```
+
+---
+Data Preprocessing
+---
+
+```{r}
+
+head(data)
+```
+```{r}
+
+tail(data)
+```
+```{r}
+
+dim(data)
+```
+```{r}
+typeof(data$Hours)
+typeof(data$Scores)
+```
+
+---
+Importing the packages required
+---
+
+```{r}
+library("caret")
+library("caTools")
+library(ggplot2)
+library(dplyr)
+
+```
+
+---
+Plotting the distribution of scores
+---
+
+```{r}
+ggplot(data=data,aes(x=Hours,y=Scores,color="orange"))+
+  geom_point() +labs(title = "Hours vs Scores")+
+  theme(plot.title = element_text(hjust = 0.5, size = 15, color = "Green"))
+
+```
+
+---
+Preparing the data
+---
+```{r}
+
+set.seed(2)
+split=sample.split(data$Scores,SplitRatio = 0.8)
+train=subset(data,split== TRUE)
+test=subset(data,split== FALSE)
+train
+
+```
+
+```{r}
+test
+
+```
+
+---
+Training the algorithm
+---
+
+```{r}
+
+model=lm(Scores~ Hours, data = train)
+summary(model)
+
+```
+
+---
+Plotting the regression line
+---
+
+```{r}
+
+ggplot(data=train,aes(x=Hours, y=Scores)) +
+  geom_point()+ geom_smooth(method = "lm")+
+  theme(panel.background = element_rect(fill = "white"),
+                                                                          axis.line.x=element_line(),
+                                                                          axis.line.y=element_line()) +
+  ggtitle("Linear Model Fitted to Data")
+
+```
+
+---
+Making Predictions
+---
+
+```{r}
+pred=predict(model,test)
+pred
+```
+
+---
+Comparing Actual vs Predicted
+---
+
+```{r}
+df=data.frame("Actual"=test$Scores,"Predicted"=pred)
+df
+```
+
+---
+You can also test with your own data
+---
+
+```{r}
+
+hours = 9.25
+own_pred=predict(model, data.frame(Hours=hours))
+paste0("No. of hours= ", hours)
+paste0("Predicted score= ",own_pred)
+```
+
+---
+Evaluating the model
+---
+
+```{r}
+error=RMSE(test$Scores,pred)
+paste0("Root mean square error= ", error)
+```
